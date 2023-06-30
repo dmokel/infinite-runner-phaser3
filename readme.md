@@ -1,4 +1,5 @@
-# Phaser 3 + TypeScript + Vite.js Template
+# Infinite Runner With Phaser3.60.0
+
 > Make Phaser 3 games with TypeScript and modern frontend tooling.
 
 ![License](https://img.shields.io/badge/license-MIT-green)

@@ -3,20 +3,56 @@ import AnimationKeys from '../consts/animationkeys';
 import TextureKeys from '../consts/texturekeys';
 
 export default class RocketMouse extends Phaser.GameObjects.Container {
+  private mouse: Phaser.GameObjects.Sprite;
+  private flames: Phaser.GameObjects.Sprite;
+  private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
+
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y);
 
-    const mouse = scene.add
+    this.mouse = scene.add
       .sprite(0, 0, TextureKeys.RocketMouse)
       .setOrigin(0.5, 1)
       .play(AnimationKeys.RocketMouseRun);
+    this.flames = scene.add
+      .sprite(-63, -15, TextureKeys.RocketMouse)
+      .play(AnimationKeys.RocketFlamesOn);
 
-    this.add(mouse);
+    this.enableJetpack(false);
+
+    this.add(this.flames);
+    this.add(this.mouse);
 
     scene.physics.add.existing(this);
 
     const body = this.body as Phaser.Physics.Arcade.Body;
-    body.setSize(mouse.width, mouse.height);
-    body.setOffset(mouse.width * -0.5, -mouse.height);
+    body.setSize(this.mouse.width, this.mouse.height);
+    body.setOffset(this.mouse.width * -0.5, -this.mouse.height);
+
+    this.cursors = scene.input.keyboard!.createCursorKeys();
+  }
+
+  enableJetpack(enable: boolean) {
+    this.flames.setVisible(enable);
+  }
+
+  preUpdate() {
+    const body = this.body as Phaser.Physics.Arcade.Body;
+
+    if (this.cursors.space.isDown) {
+      body.setAccelerationY(-600);
+      this.enableJetpack(true);
+
+      this.mouse.play(AnimationKeys.RocketMouseFly, true);
+    } else {
+      body.setAccelerationY(0);
+      this.enableJetpack(false);
+    }
+
+    if (body.blocked.down) {
+      this.mouse.play(AnimationKeys.RocketMouseRun, true);
+    } else if (body.velocity.y > 0) {
+      this.mouse.play(AnimationKeys.RocketMouseFall, true);
+    }
   }
 }

@@ -2,7 +2,15 @@ import Phaser from 'phaser';
 import AnimationKeys from '../consts/animationkeys';
 import TextureKeys from '../consts/texturekeys';
 
+enum MouseState {
+  Running,
+  Killed,
+  Dead,
+}
+
 export default class RocketMouse extends Phaser.GameObjects.Container {
+  private mouseState = MouseState.Running;
+
   private mouse: Phaser.GameObjects.Sprite;
   private flames: Phaser.GameObjects.Sprite;
   private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
@@ -36,23 +44,56 @@ export default class RocketMouse extends Phaser.GameObjects.Container {
     this.flames.setVisible(enable);
   }
 
+  kill() {
+    if (this.mouseState !== MouseState.Running) {
+      return;
+    }
+
+    this.mouseState = MouseState.Killed;
+    this.mouse.play(AnimationKeys.RocketMouseDead);
+
+    const body = this.body as Phaser.Physics.Arcade.Body;
+    body.setAccelerationY(0);
+    body.setVelocity(1000, 0);
+    this.enableJetpack(false);
+  }
+
   preUpdate() {
     const body = this.body as Phaser.Physics.Arcade.Body;
 
-    if (this.cursors.space.isDown) {
-      body.setAccelerationY(-600);
-      this.enableJetpack(true);
+    switch (this.mouseState) {
+      case MouseState.Running: {
+        if (this.cursors.space.isDown) {
+          body.setAccelerationY(-600);
+          this.enableJetpack(true);
 
-      this.mouse.play(AnimationKeys.RocketMouseFly, true);
-    } else {
-      body.setAccelerationY(0);
-      this.enableJetpack(false);
-    }
+          this.mouse.play(AnimationKeys.RocketMouseFly, true);
+        } else {
+          body.setAccelerationY(0);
+          this.enableJetpack(false);
+        }
 
-    if (body.blocked.down) {
-      this.mouse.play(AnimationKeys.RocketMouseRun, true);
-    } else if (body.velocity.y > 0) {
-      this.mouse.play(AnimationKeys.RocketMouseFall, true);
+        if (body.blocked.down) {
+          this.mouse.play(AnimationKeys.RocketMouseRun, true);
+        } else if (body.velocity.y > 0) {
+          this.mouse.play(AnimationKeys.RocketMouseFall, true);
+        }
+
+        break;
+      }
+      case MouseState.Killed: {
+        body.velocity.x *= 0.99;
+
+        if (body.velocity.x <= 5) {
+          this.mouseState = MouseState.Dead;
+        }
+
+        break;
+      }
+      case MouseState.Dead: {
+        body.setVelocity(0, 0);
+        break;
+      }
     }
   }
 }

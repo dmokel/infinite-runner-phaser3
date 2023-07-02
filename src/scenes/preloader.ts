@@ -1,5 +1,4 @@
 import Phaser from 'phaser';
-import AnimationKeys from '../consts/animationkeys';
 import SceneKeys from '../consts/scenekeys';
 import TextureKeys from '../consts/texturekeys';
 
@@ -29,63 +28,6 @@ export default class Preloader extends Phaser.Scene {
   }
 
   create() {
-    this.anims.create({
-      key: AnimationKeys.RocketMouseRun,
-      frames: this.anims.generateFrameNames(TextureKeys.RocketMouse, {
-        start: 1,
-        end: 4,
-        prefix: 'rocketmouse_run',
-        zeroPad: 2,
-        suffix: '.png',
-      }),
-      frameRate: 10,
-      repeat: -1,
-    });
-
-    this.anims.create({
-      key: AnimationKeys.RocketMouseFly,
-      frames: [
-        {
-          key: TextureKeys.RocketMouse,
-          frame: 'rocketmouse_fly01.png',
-        },
-      ],
-    });
-
-    this.anims.create({
-      key: AnimationKeys.RocketMouseFall,
-      frames: [
-        {
-          key: TextureKeys.RocketMouse,
-          frame: 'rocketmouse_fall01.png',
-        },
-      ],
-    });
-
-    this.anims.create({
-      key: AnimationKeys.RocketMouseDead,
-      frames: this.anims.generateFrameNames(TextureKeys.RocketMouse, {
-        start: 1,
-        end: 2,
-        prefix: 'rocketmouse_dead',
-        zeroPad: 2,
-        suffix: '.png',
-      }),
-      frameRate: 10,
-    });
-
-    this.anims.create({
-      key: AnimationKeys.RocketFlamesOn,
-      frames: this.anims.generateFrameNames(TextureKeys.RocketMouse, {
-        start: 1,
-        end: 2,
-        prefix: 'flame',
-        suffix: '.png',
-      }),
-      frameRate: 10,
-      repeat: -1,
-    });
-
     this.scene.start(SceneKeys.Game);
   }
 }

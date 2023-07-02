@@ -182,8 +182,6 @@ export default class Game extends Phaser.Scene {
       });
 
       this.bookcase2.visible = !overlap;
-
-      this.spawnCoins();
     }
   }
 
@@ -262,11 +260,45 @@ export default class Game extends Phaser.Scene {
     console.log('collection overlap');
   }
 
+  private teleportBackwards() {
+    const scrollX = this.cameras.main.scrollX;
+    const maxX = 2380;
+
+    if (scrollX > maxX) {
+      this.mouse.x -= maxX;
+      this.mouseHole.x -= maxX;
+
+      this.windows.forEach((win) => (win.x -= maxX));
+      this.bookcases.forEach((bc) => (bc.x -= maxX));
+
+      this.laserObstacle.x -= maxX;
+      const laserBody = this.laserObstacle
+        .body as Phaser.Physics.Arcade.StaticBody;
+      laserBody.x -= maxX;
+
+      this.spawnCoins();
+
+      this.coins.children.each((child) => {
+        const coin = child as Phaser.Physics.Arcade.Sprite;
+        if (!coin.active) {
+          return null;
+        }
+
+        coin.x -= maxX;
+        const body = coin.body as Phaser.Physics.Arcade.StaticBody;
+        body.updateFromGameObject();
+        return null;
+      });
+    }
+  }
+
   update(t, dt) {
     this.wrapMouseHole();
     this.wrapWindows();
     this.wrapBookcases();
     this.wrapLaserObstacle();
+
+    this.teleportBackwards();
 
     this.backbround.setTilePosition(this.cameras.main.scrollX);
   }
